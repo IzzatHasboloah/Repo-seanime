@@ -1,1 +1,1 @@
-{"payload": "src/index.js", "payloadUri": "https://raw.githubusercontent.com/IzzatHasboloah/Repo-seanime/main/src/index.js"}
+{\n    "manifestURI": "https://example.com/manifest.json",\n    "icon": "icon.png",\n    "lang": "en",\n    "payload": {\n        "search": "function search(query) { /* search implementation */ }",\n        "getEpisodes": "function getEpisodes(animeId) { /* getEpisodes implementation */ }",\n        "getStream": "function getStream(episodeId) { /* getStream implementation */ }"\n    }\n}

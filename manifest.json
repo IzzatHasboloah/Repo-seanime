@@ -1,1 +1,15 @@
-{\n  "name": "9anime",\n  "id": "9anime-source",\n  "author": "Your Name",\n  "version": "1.0.0",\n  "description": "Stream anime from 9anime.me.uk",\n  "minSupportedAppVersion": "2.0.0",\n  "repo": "https://github.com/yourusername/seanime-9anime-extension",\n  "type": "anime-source",\n  "main": "src/index.js",\n  "configSchema": {\n    "qualityPreference": {\n      "type": "select",\n      "label": "Preferred Quality",\n      "default": "720",\n      "options": [\n        { "label": "480p", "value": "480" },\n        { "label": "720p", "value": "720" },\n        { "label": "1080p", "value": "1080" }\n      ]\n    }\n  }\n}
+{
+  "manifest_version": 3,
+  "name": "Your Extension Name",
+  "version": "1.0",
+  "description": "A brief description of the extension.",
+  "permissions": [
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

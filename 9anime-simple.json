@@ -1,0 +1,12 @@
+{
+  "id": "9anime-simple",
+  "name": "9Anime Simple",
+  "description": "9anime.me.uk provider",
+  "manifestURI": "https://raw.githubusercontent.com/IzzatHasboloah/Repo-seanime/main/9anime-simple.json",
+  "version": "1.0.0",
+  "author": "IzzatHasboloah",
+  "type": "onlinestream-provider",
+  "language": "javascript",
+  "lang": "en",
+  "payload": "const BASE_URL = \"https://9anime.me.uk\";\n\nexport async function search(query) {\n  const res = await fetch(`${BASE_URL}/?s=${encodeURIComponent(query)}`);\n  const html = await res.text();\n\n  const results = [];\n  const items = html.match(/<a href=\"https:\\/\\/9anime\\.me\\.uk\\/[^\\\"]+\" title=\"[^\\\"]+\"/g) || [];\n\n  for (const item of items) {\n    const url = item.match(/href=\"([^\\\"]+)\"/)?.[1];\n    const title = item.match(/title=\"([^\\\"]+)\"/)?.[1];\n\n    if (url && title) results.push({ title, url });\n  }\n\n  return results.slice(0, 20);\n}\n\nexport async function getEpisodes(animeUrl) {\n  const res = await fetch(animeUrl);\n  const html = await res.text();\n\n  const episodes = [];\n  const matches = html.match(/href=\"https:\\/\\/9anime\\.me\\.uk\\/[^\\\"]*episode[^\\\"]*\"/g) || [];\n\n  let count = 1;\n  for (const m of matches) {\n    const url = m.match(/href=\"([^\\\"]+)\"/)?.[1];\n    if (url) episodes.push({ title: `Episode ${count++}`, url });\n  }\n\n  return episodes;\n}\n\nexport async function getVideo(episodeUrl) {\n  const res = await fetch(episodeUrl);\n  const html = await res.text();\n\n  const iframe = html.match(/<iframe[^>]+src=\"([^\\\"]+)\"/)?.[1];\n  if (iframe) return { url: iframe };\n\n  const source = html.match(/source src=\"([^\\\"]+)\"/)?.[1];\n  return { url: source || null };\n}"
+}

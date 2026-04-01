@@ -5,7 +5,7 @@ function Provider() {}
 Provider.prototype.getSettings = function() {
     return {
         name: "Anikage",
-        description: "Anikage",
+        description: "Anikage.cc - Sub only",
         language: "en",
         supportsDub: false,
         servers: [
@@ -21,19 +21,21 @@ Provider.prototype.search = function(opts) {
 };
 
 Provider.prototype.findEpisodes = function(id) {
-    var list = [];
+    var episodes = [];
     for (var i = 1; i <= 12; i++) {
-        list.push({
+        episodes.push({
             number: i,
             id: id + "-" + i,
             url: "https://anikage.cc/anime/watch/" + id + "?host=pahe&ep=" + i + "&type=sub",
             title: "Episode " + i
         });
     }
-    return list;
+    return episodes;
 };
 
 Provider.prototype.findEpisodeServer = function(episode, serverId) {
+    if (!serverId) serverId = "pahe";
+
     return {
         url: "https://sv6.otakuu.se/storage/06/11/f311a0cf99f579cff72cb12920c12a35fadc43852e782efa87e5e17c7cc340e1/uwu.m3u8",
         headers: {

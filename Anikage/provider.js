@@ -1,114 +1,124 @@
-class Provider {
-
-    api = "https://anikage.cc";
-
-    getSettings() {
-        return {
-            episodeServers: ["pahe"],
-            supportsDub: false,
-        };
-    }
-
-    async search(opts) {
-        const query = encodeURIComponent(opts.query);
-        const res = await fetch(`${this.api}/?s=${query}`);
-        const html = await res.text();
-
-        const $ = LoadDoc(html);
-        const results = [];
-
-        $(".film_list-wrap .flw-item").each((_, el) => {
-            const title = $(el).find(".film-name a").text().trim();
-            const url = $(el).find(".film-name a").attr("href");
-            const id = url.split("/").pop();
-
-            results.push({
-                id: id,
-                title: title,
-                subOrDub: "sub",
-                url: url,
-            });
-        });
-
-        return results;
-    }
-
-    async findEpisodes(id) {
-        const episodes = [];
-
-        const res = await fetch(`${this.api}/anime/info/${id}`);
-        const html = await res.text();
-
-        const $ = LoadDoc(html);
-
-        $(".ss-list a").each((_, el) => {
-            const epNum = parseInt($(el).text().replace("EP ", "").trim());
-            const epId = id + "-" + epNum;
-
-            episodes.push({
-                id: epId,
-                number: epNum,
-                title: "Episode " + epNum,
-                url: `${this.api}/anime/watch/${id}?ep=${epNum}&host=pahe&type=sub`,
-            });
-        });
-
-        episodes.sort((a, b) => a.number - b.number);
-
-        return episodes;
-    }
-
-    async findEpisodeServer(episode, server) {
-        const epNum = episode.number;
-        const animeId = episode.id.split("-")[0];
-
-        const watchUrl = `${this.api}/anime/watch/${animeId}?host=${server || "pahe"}&ep=${epNum}&type=sub`;
-
-        const res = await fetch(watchUrl);
-        const html = await res.text();
-
-        const $ = LoadDoc(html);
-
-        // Find iframe
-        const iframe = $("iframe").attr("src");
-
-        if (!iframe) {
-            throw new Error("No iframe found");
-        }
-
-        // Fetch iframe page
-        const iframeRes = await fetch(iframe, {
-            headers: {
-                Referer: this.api,
-            },
-        });
-
-        const iframeHtml = await iframeRes.text();
-
-        // Try extract m3u8
-        const m3u8Match = iframeHtml.match(/https?:\/\/[^"]+\.m3u8/);
-
-        if (!m3u8Match) {
-            throw new Error("No m3u8 found");
-        }
-
-        const videoUrl = m3u8Match[0];
-
-        return {
-            videoSources: [
-                {
-                    url: videoUrl,
-                    type: "m3u8",
-                    quality: "auto",
-                    subtitles: [],
-                },
-            ],
-            headers: {
-                Referer: iframe,
-            },
-            server: server || "pahe",
-        };
-    }
+function Provider() {
+    this.api = "https://anikage.cc";
 }
 
-export default new Provider();
+Provider.prototype.getSettings = function () {
+    return {
+        episodeServers: ["pahe"],
+        supportsDub: false,
+    };
+};
+
+Provider.prototype.search = function (opts) {
+    var query = encodeURIComponent(opts.query);
+
+    return fetch(this.api + "/?s=" + query)
+        .then(function (res) { return res.text(); })
+        .then(function (html) {
+
+            var $ = LoadDoc(html);
+            var results = [];
+
+            $(".film_list-wrap .flw-item").each(function (_, el) {
+                var title = $(el).find(".film-name a").text().trim();
+                var url = $(el).find(".film-name a").attr("href");
+                var id = url.split("/").pop();
+
+                results.push({
+                    id: id,
+                    title: title,
+                    subOrDub: "sub",
+                    url: url,
+                });
+            });
+
+            return results;
+        });
+};
+
+Provider.prototype.findEpisodes = function (id) {
+    var self = this;
+
+    return fetch(this.api + "/anime/info/" + id)
+        .then(function (res) { return res.text(); })
+        .then(function (html) {
+
+            var $ = LoadDoc(html);
+            var episodes = [];
+
+            $(".ss-list a").each(function (_, el) {
+                var text = $(el).text().replace("EP ", "").trim();
+                var epNum = parseInt(text);
+
+                if (!isNaN(epNum)) {
+                    episodes.push({
+                        id: id + "-" + epNum,
+                        number: epNum,
+                        title: "Episode " + epNum,
+                        url: self.api + "/anime/watch/" + id + "?ep=" + epNum + "&host=pahe&type=sub",
+                    });
+                }
+            });
+
+            episodes.sort(function (a, b) {
+                return a.number - b.number;
+            });
+
+            return episodes;
+        });
+};
+
+Provider.prototype.findEpisodeServer = function (episode, server) {
+    var self = this;
+
+    var epNum = episode.number;
+    var animeId = episode.id.split("-")[0];
+
+    var watchUrl = this.api + "/anime/watch/" + animeId +
+        "?host=" + (server || "pahe") +
+        "&ep=" + epNum +
+        "&type=sub";
+
+    return fetch(watchUrl)
+        .then(function (res) { return res.text(); })
+        .then(function (html) {
+
+            var $ = LoadDoc(html);
+            var iframe = $("iframe").attr("src");
+
+            if (!iframe) {
+                throw new Error("No iframe found");
+            }
+
+            return fetch(iframe, {
+                headers: { Referer: self.api }
+            })
+                .then(function (res) { return res.text(); })
+                .then(function (iframeHtml) {
+
+                    var match = iframeHtml.match(/https?:\/\/[^"]+\.m3u8/);
+
+                    if (!match) {
+                        throw new Error("No m3u8 found");
+                    }
+
+                    return {
+                        videoSources: [
+                            {
+                                url: match[0],
+                                type: "m3u8",
+                                quality: "auto",
+                                subtitles: [],
+                            }
+                        ],
+                        headers: {
+                            Referer: iframe,
+                        },
+                        server: server || "pahe",
+                    };
+                });
+        });
+};
+
+var provider = new Provider();
+export default provider;

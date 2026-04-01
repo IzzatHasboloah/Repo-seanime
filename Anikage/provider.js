@@ -15,16 +15,16 @@ class Provider {
     }
 
     async search(query) {
-        const url = `${this.api}/?s=${encodeURIComponent(query.query)}`;
-        const html = await this.GETText(url);
+        var url = this.api + "/?s=" + encodeURIComponent(query.query);
+        var html = await this.GETText(url);
 
-        const $ = LoadDoc(html);
-        const results = [];
+        var $ = LoadDoc(html);
+        var results = [];
 
-        $(".film_list-wrap .flw-item").each((_, el) => {
-            const title = el.find(".film-name a").text().trim();
-            const link = el.find(".film-name a").attr("href") || "";
-            const id = link.split("/").pop();
+        $(".film_list-wrap .flw-item").each(function (_, el) {
+            var title = el.find(".film-name a").text().trim();
+            var link = el.find(".film-name a").attr("href") || "";
+            var id = link.split("/").pop();
 
             results.push({
                 id: id,
@@ -38,63 +38,73 @@ class Provider {
     }
 
     async findEpisodes(id) {
-        const url = `${this.api}/anime/info/${id}`;
-        const html = await this.GETText(url);
+        var url = this.api + "/anime/info/" + id;
+        var html = await this.GETText(url);
 
-        const $ = LoadDoc(html);
-        const episodes = [];
+        var $ = LoadDoc(html);
+        var episodes = [];
 
-        $(".ss-list a").each((_, el) => {
-            const text = el.text().replace("EP ", "").trim();
-            const epNum = parseInt(text);
+        $(".ss-list a").each(function (_, el) {
+            var text = el.text().replace("EP ", "").trim();
+            var epNum = parseInt(text);
 
             if (!isNaN(epNum)) {
                 episodes.push({
-                    id: `${id}-${epNum}`,
+                    id: id + "-" + epNum,
                     number: epNum,
-                    title: `Episode ${epNum}`,
-                    url: `${this.api}/anime/watch/${id}?ep=${epNum}`,
+                    title: "Episode " + epNum,
+                    url: this.api + "/anime/watch/" + id + "?ep=" + epNum,
                 });
             }
-        });
+        }.bind(this));
 
-        episodes.sort((a, b) => a.number - b.number);
+        episodes.sort(function (a, b) {
+            return a.number - b.number;
+        });
 
         return episodes;
     }
 
     async findEpisodeServer(episode, server) {
-        const epNum = episode.number;
-        const animeId = episode.id.split("-")[0];
+        var epNum = episode.number;
+        var animeId = episode.id.split("-")[0];
 
-        const servers = ["pahe", "zen", "mizu"];
-        const selectedServer = server !== "default" ? server : "pahe";
+        var servers = ["pahe", "zen", "mizu"];
+        var selectedServer = (server && server !== "default") ? server : "pahe";
 
-        for (const srv of [selectedServer, ...servers]) {
+        // manual loop (NO for-of)
+        for (var i = 0; i < servers.length; i++) {
+
+            var srv = servers[i];
+
+            // try selected first
+            if (i === 0) srv = selectedServer;
+
             try {
-                const watchUrl = `${this.api}/anime/watch/${animeId}?host=${srv}&ep=${epNum}&type=sub`;
+                var watchUrl = this.api + "/anime/watch/" + animeId +
+                    "?host=" + srv +
+                    "&ep=" + epNum +
+                    "&type=sub";
 
-                const html = await this.GETText(watchUrl);
-                const $ = LoadDoc(html);
+                var html = await this.GETText(watchUrl);
+                var $ = LoadDoc(html);
 
-                const iframe = $("iframe").attr("src");
-
+                var iframe = $("iframe").attr("src");
                 if (!iframe) continue;
 
-                const iframeHtml = await this.GETText(iframe);
+                var iframeHtml = await this.GETText(iframe);
 
-                // Try direct m3u8
-                let match = iframeHtml.match(/https?:\/\/[^"]+\.m3u8/);
+                var match = iframeHtml.match(/https?:\/\/[^"]+\.m3u8/);
 
-                // Fallback: packed JS decode
+                // fallback decode
                 if (!match) {
-                    const scripts = iframeHtml.match(/eval\(f.+?\}\)\)/g);
+                    var scripts = iframeHtml.match(/eval\(f.+?\}\)\)/g);
 
                     if (scripts) {
-                        for (const script of scripts) {
+                        for (var j = 0; j < scripts.length; j++) {
                             try {
-                                const decoded = eval(script);
-                                const m3u8 = decoded.match(/https?:\/\/[^"]+\.m3u8/);
+                                var decoded = eval(scripts[j]);
+                                var m3u8 = decoded.match(/https?:\/\/[^"]+\.m3u8/);
                                 if (m3u8) {
                                     match = m3u8;
                                     break;
@@ -106,8 +116,6 @@ class Provider {
 
                 if (!match) continue;
 
-                const videoUrl = match[0];
-
                 return {
                     server: srv,
                     headers: {
@@ -116,7 +124,7 @@ class Provider {
                     },
                     videoSources: [
                         {
-                            url: videoUrl,
+                            url: match[0],
                             type: "m3u8",
                             quality: "auto",
                             subtitles: [],
@@ -125,7 +133,7 @@ class Provider {
                 };
 
             } catch (e) {
-                console.log("Server failed:", srv, e);
+                console.log("Server failed:", srv);
             }
         }
 
@@ -133,7 +141,7 @@ class Provider {
     }
 
     async _makeRequest(url) {
-        const res = await fetch(url, {
+        var res = await fetch(url, {
             headers: {
                 "User-Agent": "Mozilla/5.0",
                 "Referer": this.api,
@@ -148,7 +156,9 @@ class Provider {
     }
 
     async GETText(url) {
-        return await this._makeRequest(url).then(res => res.text());
+        return await this._makeRequest(url).then(function (res) {
+            return res.text();
+        });
     }
 }
 

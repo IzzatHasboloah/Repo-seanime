@@ -1,7 +1,7 @@
 {
   "id": "anikage",
   "name": "Anikage",
-  "description": "Anikage.cc - Online anime streaming provider (Sub only)",
+  "description": "Anikage.cc - Sub only",
   "manifestURI": "https://raw.githubusercontent.com/IzzatHasboloah/Repo-seanime/main/Anikage/manifest.json",
   "version": "1.0.0",
   "author": "MUHAMAD IZZAT",

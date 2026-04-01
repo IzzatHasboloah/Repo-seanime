@@ -3,7 +3,7 @@
   "name": "Anikage",
   "description": "Anikage.cc - Sub only",
   "manifestURI": "https://raw.githubusercontent.com/IzzatHasboloah/Repo-seanime/main/Anikage/manifest.json",
-  "version": "1.0.1",
+  "version": "1.0.5",
   "author": "MUHAMAD IZZAT",
   "type": "onlinestream-provider",
   "language": "typescript",

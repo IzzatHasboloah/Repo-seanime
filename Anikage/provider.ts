@@ -17,57 +17,20 @@ Provider.prototype.getSettings = function() {
 };
 
 Provider.prototype.search = function(opts) {
-    if (!opts || !opts.query) return [];
-
-    var url = "https://anikage.cc/browse?search=" + encodeURIComponent(opts.query);
-
-    return fetch(url).then(function(r) {
-        return r.text();
-    }).then(function(html) {
-        var $ = LoadDoc(html);
-        var results = [];
-
-        $("a[href*='/anime/info/']").each(function(_, el) {
-            var href = $(el).attr("href") || "";
-            var title = $(el).text().trim() || $(el).attr("title") || "";
-
-            if (href && title) {
-                var id = href.split("/anime/info/")[1];
-                if (id) id = id.split("?")[0];
-
-                if (id) {
-                    results.push({
-                        id: id,
-                        title: title,
-                        url: "https://anikage.cc" + href,
-                        subOrDub: "sub"
-                    });
-                }
-            }
-        });
-        return results;
-    });
+    return [];
 };
 
 Provider.prototype.findEpisodes = function(id) {
-    var url = "https://anikage.cc/anime/info/" + id;
-
-    return fetch(url).then(function(r) {
-        return r.text();
-    }).then(function(html) {
-        var $ = LoadDoc(html);
-        var episodes = [];
-
-        for (var i = 1; i <= 24; i++) {
-            episodes.push({
-                number: i,
-                id: id + "-" + i,
-                url: "https://anikage.cc/anime/watch/" + id + "?host=pahe&ep=" + i + "&type=sub",
-                title: "Episode " + i
-            });
-        }
-        return episodes;
-    });
+    var episodes = [];
+    for (var i = 1; i <= 12; i++) {
+        episodes.push({
+            number: i,
+            id: id + "-" + i,
+            url: "https://anikage.cc/anime/watch/" + id + "?host=pahe&ep=" + i + "&type=sub",
+            title: "Episode " + i
+        });
+    }
+    return episodes;
 };
 
 Provider.prototype.findEpisodeServer = function(episode, serverId) {

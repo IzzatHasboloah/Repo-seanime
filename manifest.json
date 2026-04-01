@@ -1,36 +1,12 @@
 {
-  "id": "animekai",
-  "name": "AnimeKai",
-  "description": "AnimeKai is an online streaming provider for subbed/dubbes animes in English",
-  "manifestURI": "https://raw.githubusercontent.com/kRYstall9/Seanime-streaming-providers/refs/heads/main/src/AnimeKai/manifest.json",
-  "version": "1.2.1",
-  "author": "kRYstall9",
+  "id": "anikage",
+  "name": "Anikage",
+  "description": "Anikage.cc - Online anime streaming provider (Sub only)",
+  "manifestURI": "https://raw.githubusercontent.com/IzzatHasboloah/Repo-seanime/main/Anikage/manifest.json",
+  "version": "1.0.0",
+  "author": "MUHAMAD IZZAT",
   "type": "onlinestream-provider",
   "language": "typescript",
   "lang": "en",
-  "payloadURI": "https://raw.githubusercontent.com/kRYstall9/Seanime-streaming-providers/refs/heads/main/src/AnimeKai/provider.ts",
-  "userConfig": {
-    "requiresConfig": false,
-    "version": 1,
-    "fields": [
-      {
-        "name": "baseUrl",
-        "label": "Base URL",
-        "type": "text",
-        "default": "https://anikai.to"
-      },
-      {
-        "name": "batchSize",
-        "label": "Batch Size",
-        "type": "text",
-        "default": "50"
-      },
-      {
-        "name": "batchDelay",
-        "label": "Batch Delay",
-        "type": "text",
-        "default": "500"
-      }
-    ]
-  }
+  "payloadURI": "https://raw.githubusercontent.com/IzzatHasboloah/Repo-seanime/main/Anikage/provider.ts"
 }
